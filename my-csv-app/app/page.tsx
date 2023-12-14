@@ -1,8 +1,10 @@
+// Ensure to install @types/react-dropzone if not installed yet
+// npm install --save-dev @types/react-dropzone
+
 'use client'
-import React, { useState } from 'react';
-import XLSX, { write, utils } from 'xlsx';
+import React, { useState, ChangeEvent } from 'react';
+import XLSX, { write, utils, read } from 'xlsx';
 import { useDropzone } from 'react-dropzone';
-import { read } from 'xlsx';
 import Navbar from './components/navbar';
 
 const dropzoneStyle: React.CSSProperties = {
@@ -30,7 +32,7 @@ const inputStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-  backgroundColor: 'trasnparent',
+  backgroundColor: 'transparent',
   color: '#fff',
   padding: '20px',
   borderRadius: '4px',
@@ -41,10 +43,10 @@ const buttonStyle: React.CSSProperties = {
   outline: 'none',
 };
 
-const Footer: React.CSSProperties = {
-   textAlign: 'center',
-   alignContent: 'flex-end',
-   marginBottom: '20px'
+const footerStyle: React.CSSProperties = {
+  textAlign: 'center',
+  alignContent: 'flex-end',
+  marginBottom: '20px'
 };
 
 export default function Home() {
@@ -56,7 +58,7 @@ export default function Home() {
     setFile(uploadedFile);
   };
 
-  const handlePartsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePartsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newParts = parseInt(event.target.value, 10);
     setParts(newParts);
   };
@@ -72,9 +74,9 @@ export default function Home() {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
 
-      const data = utils.sheet_to_json(worksheet, { header: 1 });
+      const data = utils.sheet_to_json<string[]>(worksheet, { header: 1 });
 
-      const nonEmptyRows = data.filter((row: unknown[]) => row.some(cellValue => cellValue !== ''));
+      const nonEmptyRows = data.filter((row: string[]) => row.some(cellValue => cellValue !== ''));
 
       const totalRows = nonEmptyRows.length;
       const rowsPerPart = Math.ceil(totalRows / parts);
@@ -83,11 +85,11 @@ export default function Home() {
         const startRow = i * rowsPerPart;
         const endRow = Math.min((i + 1) * rowsPerPart, totalRows);
 
-        const slicedData: unknown[] = nonEmptyRows.slice(startRow, endRow);
+        const slicedData: string[][] = nonEmptyRows.slice(startRow, endRow);
 
         if (slicedData.length > 0) {
           const slicedWorkbook = utils.book_new();
-          const slicedWorksheet = utils.aoa_to_sheet(slicedData as any[][]);
+          const slicedWorksheet = utils.aoa_to_sheet(slicedData);
           utils.book_append_sheet(slicedWorkbook, slicedWorksheet, 'Sheet 1');
 
           const blob = new Blob([write(slicedWorkbook, { bookType: 'xlsx', type: 'array' })]);
@@ -111,7 +113,7 @@ export default function Home() {
 
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <div style={containerStyle}>
         <h1 style={{ color: '#3498db', marginBottom: '20px', fontSize: '40px' }}>Manipulação de Arquivo Excel (XLS)</h1>
         <div {...getRootProps()} style={dropzoneStyle}>
@@ -126,7 +128,7 @@ export default function Home() {
           Dividir e Baixar
         </button>
       </div>
-      <footer style={Footer}>
+      <footer style={footerStyle}>
         <p>Development By MarcosJr</p>
       </footer>
     </>
