@@ -72,9 +72,9 @@ export default function Home() {
       const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' });
 
       const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
+      const worksheet: XLSX.Sheet = workbook.Sheets[sheetName];
 
-      const data = utils.sheet_to_json(worksheet, { header: 1 }) as string[][];
+      const data = utils.sheet_to_json<string[]>(worksheet, { header: 1 });
 
       const nonEmptyRows = data.filter((row) => row.some(cellValue => cellValue !== ''));
 
