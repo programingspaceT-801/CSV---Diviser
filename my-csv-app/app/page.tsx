@@ -49,6 +49,8 @@ const footerStyle: React.CSSProperties = {
   marginBottom: '20px'
 };
 
+// ... (importações e estilos anteriores)
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [parts, setParts] = useState<number>(1);
@@ -76,16 +78,24 @@ export default function Home() {
 
       const data = utils.sheet_to_json<string[]>(worksheet, { header: 1 });
 
-      const nonEmptyRows = data.filter((row) => row.some(cellValue => cellValue !== ''));
+      // Filtra apenas linhas não vazias
+      const nonEmptyRows = data.filter((row) => row.some(cellValue => cellValue.trim() !== ''));
 
       const totalRows = nonEmptyRows.length;
       const rowsPerPart = Math.ceil(totalRows / parts);
+
+      // Assume que a primeira linha é o cabeçalho
+      const header = nonEmptyRows.shift() || [];
 
       for (let i = 0; i < parts; i++) {
         const startRow = i * rowsPerPart;
         const endRow = Math.min((i + 1) * rowsPerPart, totalRows);
 
-        const slicedData: string[][] = nonEmptyRows.slice(startRow, endRow);
+        // Adiciona o cabeçalho apenas uma vez antes do loop
+        const slicedData: string[][] = [header];
+
+        // Adiciona as linhas correspondentes a cada parte
+        slicedData.push(...nonEmptyRows.slice(startRow, endRow));
 
         if (slicedData.length > 0) {
           const slicedWorkbook = utils.book_new();
