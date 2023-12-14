@@ -46,7 +46,10 @@ const buttonStyle: React.CSSProperties = {
 const footerStyle: React.CSSProperties = {
   textAlign: 'center',
   alignContent: 'flex-end',
-  marginBottom: '20px'
+  marginBottom: '20px',
+  fontFamily: 'Arial, sans-serif',
+  fontSize: '14px',
+  color: '#555',
 };
 
 // ... (importações e estilos anteriores)
@@ -139,7 +142,7 @@ export default function Home() {
         </button>
       </div>
       <footer style={footerStyle}>
-        <p>Development By MarcosJr</p>
+        <a href="https://github.com/MarcosT-800">Development By MarcosJr</a>
       </footer>
     </>
   );
