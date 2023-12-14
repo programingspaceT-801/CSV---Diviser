@@ -119,7 +119,7 @@ export default function Home() {
           <p style={{ fontSize: '18px' }}>Arraste e solte o arquivo Excel (XLS) aqui ou clique para fazer o upload.</p>
         </div>
         <label>
-          Número de partes:
+          Partes:
           <input type="number" value={parts} onChange={handlePartsChange} style={inputStyle} />
         </label>
         <button onClick={handleDownload} style={buttonStyle}>
