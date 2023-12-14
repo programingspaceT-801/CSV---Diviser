@@ -1,12 +1,8 @@
-// Ensure to install @types/react-dropzone if not installed yet
-// npm install --save-dev @types/react-dropzone
-
 'use client'
 import React, { useState, ChangeEvent } from 'react';
 import XLSX, { write, utils, read } from 'xlsx';
 import { useDropzone } from 'react-dropzone';
 import Navbar from './components/navbar';
-
 const dropzoneStyle: React.CSSProperties = {
   border: '2px dashed #3498db',
   borderRadius: '4px',
@@ -15,13 +11,11 @@ const dropzoneStyle: React.CSSProperties = {
   cursor: 'pointer',
   margin: '20px',
 };
-
 const containerStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center'
 };
-
 const inputStyle: React.CSSProperties = {
   margin: '10px',
   padding: '10px',
@@ -30,7 +24,6 @@ const inputStyle: React.CSSProperties = {
   fontSize: '16px',
   textAlign: 'center',
 };
-
 const buttonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
   color: '#fff',
@@ -46,10 +39,7 @@ const buttonStyle: React.CSSProperties = {
 const footerStyle: React.CSSProperties = {
   textAlign: 'center',
   alignContent: 'flex-end',
-  marginBottom: '20px',
-  fontFamily: 'Arial, sans-serif',
-  fontSize: '14px',
-  color: '#555',
+  marginBottom: '20px'
 };
 
 // ... (importações e estilos anteriores)
@@ -57,25 +47,20 @@ const footerStyle: React.CSSProperties = {
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [parts, setParts] = useState<number>(1);
-
   const onDrop = async (acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
     setFile(uploadedFile);
   };
-
   const handlePartsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newParts = parseInt(event.target.value, 10);
     setParts(newParts);
   };
-
   const handleDownload = () => {
     if (!file) return;
-
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       const arrayBuffer = e.target?.result as ArrayBuffer;
       const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' });
-
       const sheetName = workbook.SheetNames[0];
       const worksheet: XLSX.Sheet = workbook.Sheets[sheetName];
 
@@ -104,9 +89,7 @@ export default function Home() {
           const slicedWorkbook = utils.book_new();
           const slicedWorksheet = utils.aoa_to_sheet(slicedData);
           utils.book_append_sheet(slicedWorkbook, slicedWorksheet, 'Sheet 1');
-
           const blob = new Blob([write(slicedWorkbook, { bookType: 'xlsx', type: 'array' })]);
-
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
@@ -118,12 +101,9 @@ export default function Home() {
         }
       }
     };
-
     fileReader.readAsArrayBuffer(file);
   };
-
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
-
   return (
     <>
       <Navbar />
@@ -142,7 +122,7 @@ export default function Home() {
         </button>
       </div>
       <footer style={footerStyle}>
-        <a href="https://github.com/MarcosT-800">Development By MarcosJr</a>
+        <p>Development By MarcosJr</p>
       </footer>
     </>
   );
