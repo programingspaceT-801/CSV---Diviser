@@ -13,8 +13,7 @@ const Navbar = () => {
 
       <ul className="list-none sm:flex hidden justify-end items-center flex-1">
         <li className="d-flex justify-between w-100">
-          <a className="mr-6 cursor-pointer">Home</a>
-          <a className="mr-6 cursor-pointer">PHtech</a>
+          <a className="mr-6 cursor-pointer">Menu</a>
         </li>
       </ul>
 
