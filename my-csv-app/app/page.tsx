@@ -42,7 +42,7 @@ const buttonStyle: React.CSSProperties = {
   border: '1px solid #3498db',
   outline: 'none',
 };
-
+/* teste */
 const footerStyle: React.CSSProperties = {
   textAlign: 'center',
   alignContent: 'flex-end',
