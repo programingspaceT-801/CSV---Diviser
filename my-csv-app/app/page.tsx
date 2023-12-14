@@ -104,6 +104,8 @@ export default function Home() {
     fileReader.readAsArrayBuffer(file);
   };
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  
   return (
     <>
       <Navbar />
