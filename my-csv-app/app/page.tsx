@@ -106,6 +106,7 @@ export default function Home() {
           const slicedWorksheet = utils.aoa_to_sheet(slicedData);
           utils.book_append_sheet(slicedWorkbook, slicedWorksheet, 'Sheet 1');
   
+          // @ts-ignore
           const blob = new Blob([write(slicedWorkbook, { bookType: 'xlsx', type: 'array', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })]);
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
