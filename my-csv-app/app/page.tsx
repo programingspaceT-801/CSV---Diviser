@@ -1,8 +1,10 @@
 'use client'
+
 import React, { useState, ChangeEvent } from 'react';
 import XLSX, { write, utils, read } from 'xlsx';
 import { useDropzone } from 'react-dropzone';
 import Navbar from './components/navbar';
+
 const dropzoneStyle: React.CSSProperties = {
   border: '2px dashed #3498db',
   borderRadius: '4px',
@@ -11,11 +13,13 @@ const dropzoneStyle: React.CSSProperties = {
   cursor: 'pointer',
   margin: '20px',
 };
+
 const containerStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center'
+  alignItems: 'center',
 };
+
 const inputStyle: React.CSSProperties = {
   margin: '10px',
   padding: '10px',
@@ -24,6 +28,7 @@ const inputStyle: React.CSSProperties = {
   fontSize: '16px',
   textAlign: 'center',
 };
+
 const buttonStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
   color: '#fff',
@@ -35,61 +40,73 @@ const buttonStyle: React.CSSProperties = {
   border: '1px solid #3498db',
   outline: 'none',
 };
-/* teste */
+
 const footerStyle: React.CSSProperties = {
   textAlign: 'center',
   alignContent: 'flex-end',
-  marginBottom: '20px'
+  marginBottom: '20px',
 };
-
-// ... (importações e estilos anteriores)
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [parts, setParts] = useState<number>(1);
+  const [percentages, setPercentages] = useState<number[]>([100]);
+
   const onDrop = async (acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
     setFile(uploadedFile);
   };
+
   const handlePartsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newParts = parseInt(event.target.value, 10);
     setParts(newParts);
+    setPercentages(new Array(newParts).fill(100));
   };
+
+  const handlePercentageChange = (index: number, value: number) => {
+    const updatedPercentages = [...percentages];
+    updatedPercentages[index] = value;
+    setPercentages(updatedPercentages);
+  };
+
   const handleDownload = () => {
     if (!file) return;
+  
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       const arrayBuffer = e.target?.result as ArrayBuffer;
       const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet: XLSX.Sheet = workbook.Sheets[sheetName];
-
+  
       const data = utils.sheet_to_json<string[]>(worksheet, { header: 1 });
-
-      // Filtra apenas linhas não vazias
-      const nonEmptyRows = data.filter((row) => row.some(cellValue => cellValue.trim() !== ''));
-
+  
+      const nonEmptyRows = data.filter((row) => row.some((cellValue) => cellValue.trim() !== ''));
+  
       const totalRows = nonEmptyRows.length;
-      const rowsPerPart = Math.ceil(totalRows / parts);
-
-      // Assume que a primeira linha é o cabeçalho
+  
+      // Calculate the total percentage specified by the user
+      const totalPercentage = percentages.reduce((acc, percentage) => acc + percentage, 0);
+  
+      // Calculate the number of rows for each part based on the specified percentage
+      const rowsPerPart = percentages.map((percentage) => Math.ceil((percentage / totalPercentage) * totalRows));
+  
+      // Assume that the first row is the header
       const header = nonEmptyRows.shift() || [];
-
+  
       for (let i = 0; i < parts; i++) {
-        const startRow = i * rowsPerPart;
-        const endRow = Math.min((i + 1) * rowsPerPart, totalRows);
-
-        // Adiciona o cabeçalho apenas uma vez antes do loop
+        const startRow = i > 0 ? rowsPerPart.slice(0, i).reduce((acc, val) => acc + val, 0) : 0;
+        const endRow = startRow + rowsPerPart[i];
+  
         const slicedData: string[][] = [header];
-
-        // Adiciona as linhas correspondentes a cada parte
         slicedData.push(...nonEmptyRows.slice(startRow, endRow));
-
+  
         if (slicedData.length > 0) {
           const slicedWorkbook = utils.book_new();
           const slicedWorksheet = utils.aoa_to_sheet(slicedData);
           utils.book_append_sheet(slicedWorkbook, slicedWorksheet, 'Sheet 1');
-          const blob = new Blob([write(slicedWorkbook, { bookType: 'xlsx', type: 'array' })]);
+  
+          const blob = new Blob([write(slicedWorkbook, { bookType: 'xlsx', type: 'array', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })]);
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
@@ -101,11 +118,12 @@ export default function Home() {
         }
       }
     };
+  
     fileReader.readAsArrayBuffer(file);
   };
+
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  
   return (
     <>
       <Navbar />
@@ -119,6 +137,17 @@ export default function Home() {
           Partes:
           <input type="number" value={parts} onChange={handlePartsChange} style={inputStyle} />
         </label>
+        {Array.from({ length: parts }, (_, i) => (
+          <label key={i}>
+            Porcentagem para Parte {i + 1}:
+            <input
+              type="number"
+              value={percentages[i]}
+              onChange={(e) => handlePercentageChange(i, parseFloat(e.target.value))}
+              style={inputStyle}
+            />
+          </label>
+        ))}
         <button onClick={handleDownload} style={buttonStyle}>
           Dividir e Baixar
         </button>
